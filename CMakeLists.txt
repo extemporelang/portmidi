@@ -13,14 +13,6 @@ target_include_directories(portmidi
   PRIVATE pm_common
   PRIVATE porttime
   )
-target_compile_options(portmidi
-  PRIVATE -Wno-deprecated-declarations)
-target_link_libraries(portmidi
-  PRIVATE "-framework CoreFoundation"
-  PRIVATE "-framework CoreAudio"
-  PRIVATE "-framework CoreMIDI"
-  PRIVATE "-framework Carbon" # for readbinaryplist.c
-  )
 
 # platform-specific
 
@@ -35,6 +27,14 @@ if(APPLE)
   target_include_directories(portmidi
     PRIVATE pm_mac
     )
+  target_link_libraries(portmidi
+    PRIVATE "-framework CoreFoundation"
+    PRIVATE "-framework CoreAudio"
+    PRIVATE "-framework CoreMIDI"
+    PRIVATE "-framework Carbon" # for readbinaryplist.c
+    )
+  target_compile_options(portmidi
+    PRIVATE -Wno-deprecated-declarations)
 elseif(UNIX AND NOT APPLE)
   target_sources(portmidi
     PRIVATE porttime/ptlinux.c
@@ -47,6 +47,8 @@ elseif(UNIX AND NOT APPLE)
     )
   target_compile_definitions(portmidi
     PRIVATE -DPMALSA)
+  target_compile_options(portmidi
+    PRIVATE -Wno-deprecated-declarations)
 elseif(WIN32)
   target_sources(portmidi
     PRIVATE porttime/ptwinmm.c
@@ -54,9 +56,15 @@ elseif(WIN32)
     PRIVATE pm_win/pmwinmm.c
     )
   target_include_directories(portmidi
-    PRIVATE pm_linux
+    PRIVATE pm_win
     )
+  target_compile_definitions(portmidi
+    PRIVATE -DWIN32)
+  target_link_libraries(portmidi
+    PRIVATE winmm)
 endif()
 
 install(TARGETS portmidi
-  DESTINATION lib)
+  RUNTIME DESTINATION lib
+  ARCHIVE DESTINATION lib # for .lib files on Windows
+  LIBRARY DESTINATION lib)
