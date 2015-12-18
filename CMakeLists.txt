@@ -57,3 +57,6 @@ elseif(WIN32)
     PRIVATE pm_linux
     )
 endif()
+
+install(TARGETS portmidi
+  DESTINATION lib)
